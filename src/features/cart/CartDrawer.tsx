@@ -1,0 +1,14 @@
+import { Link } from 'react-router-dom'
+import { Modal } from '../../components/ui/Modal'
+import { Icon } from '../../components/ui/Icon'
+import { useCart } from './CartContext'
+import { getProduct } from '../../data/products'
+import { cartKey, money, priceForWeight } from '../../lib/commerce'
+
+export function CartDrawer() {
+  const cart = useCart()
+  const remaining = Math.max(0, 50 - cart.subtotal)
+  return <Modal open={cart.isOpen} onClose={() => cart.setOpen(false)} title={`Your bag (${cart.count})`} className="cart-drawer">
+    {cart.items.length ? <><div className="shipping-progress"><p>{remaining ? `You’re ${money(remaining)} away from free shipping.` : 'A little extra joy: your shipping is on us.'}</p><div><span style={{ width: `${Math.min(100, cart.subtotal / 50 * 100)}%` }} /></div></div><div className="cart-items">{cart.items.map(item => { const product = getProduct(item.productId)!; const key = cartKey(item); return <article className="cart-item" key={key}><Link to={`/shop/${product.id}`} onClick={() => cart.setOpen(false)}><img src={product.image} alt={product.name} /></Link><div><span className="eyebrow">{product.origin}</span><Link to={`/shop/${product.id}`} onClick={() => cart.setOpen(false)}><h3>{product.name}</h3></Link><p>{item.weight}g · Whole bean</p><div className="quantity-control"><button disabled={item.quantity <= 1} aria-label={`Decrease ${product.name} ${item.weight}g quantity`} onClick={() => cart.update(key, item.quantity - 1)}><Icon name="minus" size={15} /></button><span aria-live="polite">{item.quantity}</span><button disabled={item.quantity >= 20} aria-label={`Increase ${product.name} ${item.weight}g quantity`} onClick={() => cart.update(key, item.quantity + 1)}><Icon name="plus" size={15} /></button></div></div><div className="cart-item-end"><strong>{money(priceForWeight(product.price, item.weight) * item.quantity)}</strong><button className="remove-button" onClick={() => cart.remove(key)} aria-label={`Remove ${product.name} ${item.weight}g`}>Remove</button></div></article> })}</div><div className="cart-summary"><div><span>Subtotal</span><strong>{money(cart.subtotal)}</strong></div><p>{remaining ? 'Shipping: $5. Free on orders $50+.' : 'Free shipping included.'} Prices include applicable demo taxes.</p><Link to="/checkout" onClick={() => cart.setOpen(false)} className="button button-dark">Continue to checkout <Icon name="right" /></Link><button className="text-link" onClick={() => cart.setOpen(false)}>Continue exploring</button><small>Portfolio store · Checkout is a demonstration.</small></div></> : <div className="empty-cart"><Icon name="bag" size={42} /><h3>A little room<br />for something good.</h3><p>Your next favorite coffee is waiting.</p><Link to="/shop" className="button button-dark" onClick={() => cart.setOpen(false)}>Explore the coffees <Icon name="right" /></Link></div>}
+  </Modal>
+}

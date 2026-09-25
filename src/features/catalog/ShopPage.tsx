@@ -1,0 +1,19 @@
+import { useSearchParams } from 'react-router-dom'
+import { products } from '../../data/products'
+import { filterProducts } from '../../lib/commerce'
+import { ProductCard } from '../../components/product/ProductCard'
+import { Icon } from '../../components/ui/Icon'
+
+const categories = ['All coffee', 'Single origin', 'Blend', 'Seasonal', 'Espresso']
+export default function ShopPage() {
+  const [params, setParams] = useSearchParams()
+  const query = params.get('q') || ''
+  const category = params.get('category') || 'All coffee'
+  const roast = params.get('roast') || ''
+  const origin = params.get('origin') || ''
+  const sort = params.get('sort') || 'featured'
+  const filtered = filterProducts(products, { query, category, roast, origin, sort })
+  const setFilter = (key: string, value: string) => setParams(current => { const next = new URLSearchParams(current); if (value) next.set(key, value); else next.delete(key); return next }, { replace: true })
+  const activeFilters = !!(query || roast || origin || category !== 'All coffee')
+  return <div className="shop-page section-shell"><div className="shop-intro"><span className="eyebrow">The ORREN collection</span><h1>A world of flavor.<br /><em>Your kind of coffee.</em></h1><p>Distinctive origins. Thoughtful roasts. Find a coffee that feels like you.</p></div><div className="shop-toolbar"><div className="category-tabs" aria-label="Coffee category">{categories.map(cat => <button key={cat} aria-pressed={category === cat} onClick={() => setFilter('category', cat === 'All coffee' ? '' : cat)}>{cat === 'Blend' ? 'Blends' : cat}</button>)}</div><div className="catalog-search"><Icon name="search" size={18} /><input aria-label="Search the collection" placeholder="Find a flavor, origin, coffee…" value={query} onChange={event => setFilter('q', event.target.value)} />{query && <button className="icon-button" aria-label="Clear collection search" onClick={() => setFilter('q', '')}><Icon name="close" size={16} /></button>}</div></div><div className="filter-row"><div className="filter-selects"><Icon name="filter" size={17} /><label><span className="sr-only">Roast level</span><select value={roast} onChange={event => setFilter('roast', event.target.value)}><option value="">All roasts</option>{['Light', 'Medium', 'Dark'].map(level => <option key={level}>{level}</option>)}</select></label><label><span className="sr-only">Origin</span><select value={origin} onChange={event => setFilter('origin', event.target.value)}><option value="">All origins</option>{[...new Set(products.map(p => p.origin))].map(country => <option key={country}>{country}</option>)}</select></label>{activeFilters && <button className="clear-filters" onClick={() => setParams({})}>Clear filters <Icon name="close" size={13} /></button>}</div><div className="sort-group"><span className="results-count" aria-live="polite">{filtered.length} coffees</span><label><span className="sr-only">Sort coffees</span><select value={sort} onChange={event => setFilter('sort', event.target.value)}><option value="featured">Featured</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="name">Name: A–Z</option></select></label></div></div>{filtered.length ? <div className="catalog-grid">{filtered.map(product => <ProductCard product={product} key={product.id} />)}</div> : <div className="empty-state catalog-empty"><Icon name="search" size={35} /><h2>No coffees in this corner.</h2><p>Try a different flavor or give your filters a fresh start.</p><button className="button button-dark" onClick={() => setParams({})}>Explore all coffees <Icon name="right" /></button></div>}<div className="shop-bottom-note"><Icon name="coffee" size={26} /><p>Not sure where to start?<br /><strong>Huila is our easygoing everyday favorite.</strong></p></div></div>
+}

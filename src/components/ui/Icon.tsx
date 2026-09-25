@@ -1,0 +1,3 @@
+import { ArrowUpRight, ArrowRight, ArrowDown, Search, ShoppingBag, Menu, X, Plus, Minus, SlidersHorizontal, Check, Leaf, Package, Truck, ChevronDown, Rotate3d, Sun, Coffee, MapPin } from 'lucide-react'
+const icons = { arrow: ArrowUpRight, right: ArrowRight, down: ArrowDown, search: Search, bag: ShoppingBag, menu: Menu, close: X, plus: Plus, minus: Minus, filter: SlidersHorizontal, check: Check, leaf: Leaf, package: Package, truck: Truck, chevron: ChevronDown, rotate: Rotate3d, sun: Sun, coffee: Coffee, pin: MapPin }
+export function Icon({ name, size = 20, className = '' }: { name: keyof typeof icons; size?: number; className?: string }) { const Component = icons[name]; return <Component size={size} strokeWidth={1.5} aria-hidden="true" className={className} /> }
